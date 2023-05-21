@@ -40,7 +40,7 @@ public class Nature extends JPanel
         else if(id == 2)
         {
             //Plant =  Green
-            return Color.GREEN;
+            return new Color(0,128,0);
         }
         else if(id == 3)
         {

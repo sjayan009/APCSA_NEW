@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.*;
 import java.awt.*;
+import java.sql.Time;
 
 
 public class EvolutionGamePanel extends JFrame implements Runnable
@@ -71,6 +72,7 @@ public class EvolutionGamePanel extends JFrame implements Runnable
 
         initializeGrass();
         makeTrees();
+        makePlants();
     }
     public void initializeGrass()
     {
@@ -145,12 +147,8 @@ public class EvolutionGamePanel extends JFrame implements Runnable
         {
             JPanel squarePanel = (JPanel) gridPanel.getComponent(i);
             
-            //Get the components in the panel
             Component[] componentList = squarePanel.getComponents();
-
-            //Loop through the components
             for(Component c : componentList){
-
             //Find the components you want to remove
             if(c instanceof Nature)
             {
@@ -188,6 +186,44 @@ public class EvolutionGamePanel extends JFrame implements Runnable
 
     }
 }
+    public void makePlants() 
+    {
+        int plantCount = 0;
+        for (int i = 0; i < 324; i++) 
+        {
+            JPanel squarePanel = (JPanel) gridPanel.getComponent(i);
+            Component[] componentList = squarePanel.getComponents();
+            for(Component c : componentList){
+                //Find the components you want to remove
+                if(c instanceof Nature)
+                {
+                    if( ((Nature) c).getID() == 4)
+                    {
+                        Color color = new Color(136, 213, 107);
+                        if(squarePanel.getBackground().equals(color) && plantCount < 2)
+                        {
+                            if( ((int) (Math.random() * 11 + 1)) == 5)
+                            {
+                                //Remove it
+                                squarePanel.remove(c);
+
+                                //Add the Plant Component    
+                                Nature n = new Nature(2);
+                                squarePanel.add(n);
+                                squarePanel.setBackground(n.getColor()); 
+                                n.setVisible(true);
+
+                                plantCount++;
+                            } 
+                        }
+                    } 
+                }
+                //IMPORTANT
+                squarePanel.revalidate();
+                squarePanel.repaint();
+            }
+        }
+    }
 
     public void deployAnimal(int index)
     {
@@ -296,9 +332,21 @@ public class EvolutionGamePanel extends JFrame implements Runnable
                                     break;
                                 }
                             }
+
+                            boolean isWaterOrTree = false;
+                            for(Component nextComponent: nextComponents)
+                            {
+                                if(nextComponent instanceof Nature)
+                                {
+                                    if( ((Nature)nextComponent).getID() == 0 || ((Nature)nextComponent).getID() == 1)
+                                    {
+                                        isWaterOrTree = true;
+                                    }
+                                }
+                            }
     
                             // Move the Animal object to the nextPanel if it does not contain another Animal object
-                            if (!hasAnimal) {
+                            if (!hasAnimal && (isWaterOrTree == false)) {
                                 try {
                                     swapNatureComponents(currentIndex, nextIndex);
                                 } catch (InterruptedException e) {
@@ -325,6 +373,7 @@ public class EvolutionGamePanel extends JFrame implements Runnable
         return -1; // No valid neighbor found
     }
     
+    //Returns all possible indices that an animal object can move to
     public List<Integer> getNeighborIndices(int index) {
         List<Integer> neighbourIndices = new ArrayList<>();
     
@@ -346,5 +395,4 @@ public class EvolutionGamePanel extends JFrame implements Runnable
     
         return neighbourIndices;
     }
-
 }
