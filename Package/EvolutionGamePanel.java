@@ -287,6 +287,38 @@ public class EvolutionGamePanel extends JFrame implements Runnable
         }
     }
 
+    private void moveAnimalsStrategically()
+    {
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+
+            @Override
+            public void run() 
+            {
+                for(int i = 0; i < 324; i++)
+                {
+                    JPanel squarePanel = (JPanel) gridPanel.getComponent(i);
+                    Component[] components = squarePanel.getComponents();
+
+                    //Find the Rabbit Object in squarePanel
+                    Animal animal = null;
+                    for(Component component : components)
+                    {
+                        if(component instanceof Rabbit)
+                        {
+                            animal = ((Rabbit)component);
+                            break;
+                        }
+                    }
+
+                    
+
+                }
+            }
+            
+        }, 0, 1000);
+    }
+
     private void moveAnimals() {
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -352,7 +384,7 @@ public class EvolutionGamePanel extends JFrame implements Runnable
     } 
     
     private int getNextPanelIndex(int currentIndex) {
-        List<Integer> neighborIndices = getNeighborIndices(currentIndex);
+        List<Integer> neighborIndices = getNeighborIndicesSimpleRadius(currentIndex);
         if (!neighborIndices.isEmpty()) {
             Random random = new Random();
             int randomIndex = random.nextInt(neighborIndices.size());
@@ -362,7 +394,7 @@ public class EvolutionGamePanel extends JFrame implements Runnable
     }
     
     //Returns all possible indices that an animal object can move to
-    public List<Integer> getNeighborIndices(int index) {
+    public List<Integer> getNeighborIndicesSimpleRadius(int index) {
         List<Integer> neighbourIndices = new ArrayList<>();
     
         int row = index / 18;
@@ -443,7 +475,7 @@ public class EvolutionGamePanel extends JFrame implements Runnable
                     if(animal != null)
                     {
                         //Gets Possible Indexes that the Rabbit is next to
-                        List<Integer> neighborIndices = getNeighborIndices(i);
+                        List<Integer> neighborIndices = getNeighborIndicesSimpleRadius(i);
 
                         //Loops Through the List
                         for(Integer possiblePlantIndex : neighborIndices)
@@ -470,6 +502,7 @@ public class EvolutionGamePanel extends JFrame implements Runnable
 
         }, 0, 1000);
     }
+
 
     //Checks every second to make sure that there are 5 plants at all times
     private void ensurePlantCount()
