@@ -117,6 +117,25 @@ public class GridWindow extends JFrame {
     }
 }
 
+Body of removePlants() method before it got renamed to rabbitEatsPlants()
+for(int i = 0; i < 324; i++)
+{
+    JPanel squarePanel = (JPanel) gridPanel.getComponent(i);
+    Component[] components = squarePanel.getComponents();
+    for(Component c : components)
+    {
+        if(c instanceof Nature)
+        {
+            if(((Nature)c).getID() == 2)
+            {
+                minimizeSize(squarePanel, (Nature)c);
+                squarePanel.remove(c);
+                plantCount--;
+            }
+        }
+    }
+}
+
 
 
 

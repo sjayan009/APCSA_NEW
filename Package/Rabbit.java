@@ -5,6 +5,7 @@ import java.awt.Color;
 public class Rabbit extends Animal
 {
     private int level;
+    public String type = "Rabbit";
 
     public Rabbit()
     {

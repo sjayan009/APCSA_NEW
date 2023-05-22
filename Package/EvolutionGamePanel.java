@@ -62,21 +62,20 @@ public class EvolutionGamePanel extends JFrame implements Runnable
         gameThread.start();
 
         moveAnimals();
-        removePlants();
+        rabbitEatsPlants();
         ensurePlantCount();
     }
     
     public void makeElements()
     {
+        setDiagonalToptoBottom(0, 13, 0); //Makes Water
+        setDiagonalToptoBottom(18, 12, 0); //Makes Water
+        setDiagonalToptoBottom(36, 11, 0); //Makes Water
+        setRectangle(245, 7, 5, 0); //Makes Water
 
-        setDiagonalToptoBottom(0, 13, 0);
-        setDiagonalToptoBottom(18, 12, 0);
-        setDiagonalToptoBottom(36, 11, 0);
-        setRectangle(245, 7, 5, 0);
-
-        initializeGrass();
-        makeTrees();
-        makePlants();
+        initializeGrass(); //Makes Grass
+        makeTrees(); //Makes Trees Randomly by replacing Grass Component with Tree Component  and adds a Tree Image
+        makePlants(); //Adds 5 Plant Components to an existing Grass Component Randomly
     }
     public void initializeGrass()
     {
@@ -203,7 +202,7 @@ public class EvolutionGamePanel extends JFrame implements Runnable
                     if( ((Nature) c).getID() == 4)
                     {
                         Color color = new Color(136, 213, 107);
-                        if(squarePanel.getBackground().equals(color) && plantCount < 2)
+                        if(squarePanel.getBackground().equals(color) && plantCount < 5)
                         {
                             if( ((int) (Math.random() * 11 + 1)) == 5)
                             {
@@ -239,7 +238,7 @@ public class EvolutionGamePanel extends JFrame implements Runnable
         squarePanel.repaint();
     }
 
-    public void swapNatureComponents(int index1, int index2) throws InterruptedException
+    public void swapAnimalComponents(int index1, int index2) throws InterruptedException
     {
         JPanel squarePanel1 = (JPanel) gridPanel.getComponent(index1);
         JPanel squarePanel2 = (JPanel) gridPanel.getComponent(index2);
@@ -266,16 +265,6 @@ public class EvolutionGamePanel extends JFrame implements Runnable
         squarePanel2.revalidate();
         squarePanel2.repaint();
 
-    }
-
-    public void printComponents()
-    {
-        for(int i = 0; i < 324; i++)
-        {
-            JPanel squarePanel = (JPanel) gridPanel.getComponent(i);
-            int componentCount = squarePanel.getComponentCount();
-            System.out.println(componentCount + " i: " + i);
-        }
     }
     
     public void run() {
@@ -348,7 +337,7 @@ public class EvolutionGamePanel extends JFrame implements Runnable
                             // Move the Animal object to the nextPanel if it does not contain another Animal object
                             if (!hasAnimal && (isWaterOrTreeOrPlant == false)) {
                                 try {
-                                    swapNatureComponents(currentIndex, nextIndex);
+                                    swapAnimalComponents(currentIndex, nextIndex);
                                 } catch (InterruptedException e) {
                                     // TODO Auto-generated catch block
                                     e.printStackTrace();
@@ -396,7 +385,7 @@ public class EvolutionGamePanel extends JFrame implements Runnable
     }
 
     //Minimizes Size
-    private void minimizeSize(JPanel squarePanel, Nature nature)
+    private void minimizeSizeAndDelete(JPanel squarePanel, Nature nature)
     {
         int length = nature.getWidth();
         while(length >= 0)
@@ -417,29 +406,62 @@ public class EvolutionGamePanel extends JFrame implements Runnable
             squarePanel.revalidate();
             squarePanel.repaint();
         }
+
+        squarePanel.remove(nature);
+        plantCount--;
+
+        //IMPORTANT
+        squarePanel.revalidate();
+        squarePanel.repaint();
     }
 
-    //Removes Plants whenever an Animal is near it.
-    private void removePlants()
+    //Removes Plants whenever an Rabbit is near it.
+    private void rabbitEatsPlants()
     {
         Timer timer = new Timer();
         timer.schedule(new TimerTask(){
 
             @Override
-            public void run() {
+            public void run() 
+            {
                 for(int i = 0; i < 324; i++)
                 {
                     JPanel squarePanel = (JPanel) gridPanel.getComponent(i);
                     Component[] components = squarePanel.getComponents();
-                    for(Component c : components)
-                    {
-                        if(c instanceof Nature)
+    
+                    // Find the Animal object in the squarePanel
+                    Animal animal = null;
+                    for (Component component : components) {
+                        if (component instanceof Rabbit) 
                         {
-                            if(((Nature)c).getID() == 2)
+                            animal = (Rabbit) component;
+                            break;
+                        }
+                    }
+
+                    //Checks if animal is not null
+                    if(animal != null)
+                    {
+                        //Gets Possible Indexes that the Rabbit is next to
+                        List<Integer> neighborIndices = getNeighborIndices(i);
+
+                        //Loops Through the List
+                        for(Integer possiblePlantIndex : neighborIndices)
+                        {
+                            //Check if any of the indexes are plant values
+                            JPanel squarePanel2 = (JPanel) gridPanel.getComponent(possiblePlantIndex);
+                            Component[] componentsInSquarePanel2 = squarePanel2.getComponents();
+
+                            for(Component c : componentsInSquarePanel2)
                             {
-                                minimizeSize(squarePanel, (Nature)c);
-                                squarePanel.remove(c);
-                                plantCount--;
+                                if(c instanceof Nature)
+                                {
+                                    if( ((Nature)c).getID() == 2)
+                                    {
+                                        //Rabbit "eats" plant
+                                        minimizeSizeAndDelete(squarePanel2, ((Nature)c));
+                                    }
+                                }
                             }
                         }
                     }
@@ -464,8 +486,21 @@ public class EvolutionGamePanel extends JFrame implements Runnable
                     JPanel squarePanel = (JPanel) gridPanel.getComponent(random);
                     boolean isWater = squarePanel.getBackground().equals(Color.BLUE);
                     boolean isTree = squarePanel.getBackground().equals(new Color(150, 75, 0));
+                    boolean isPlant = false;
 
-                    if(isWater == false && isTree == false)
+                    Component[] components = squarePanel.getComponents();
+                    for(Component c : components)
+                    {
+                        if(c instanceof Nature)
+                        {
+                            if( ((Nature)c).getID() == 2)
+                            {
+                                isPlant = true;
+                            }
+                        }
+                    }
+
+                    if(isWater == false && isTree == false && isPlant == false)
                     {
                         //Add the Plant Component    
                         Nature n = new Nature(2);
