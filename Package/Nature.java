@@ -11,7 +11,6 @@ public class Nature extends JPanel
      * 0 - Water
      * 1 - Tree
      * 2 - Plant
-     * 3 - Mountain
      * 4 - Grass
     */
     
@@ -42,11 +41,6 @@ public class Nature extends JPanel
             //Plant =  Green
             return new Color(0,128,0);
         }
-        else if(id == 3)
-        {
-            //Mountain = Black
-            return Color.BLACK;
-        }
         else if(id == 4)
         {
             //Grass = Light Green
@@ -68,10 +62,6 @@ public class Nature extends JPanel
         else if(id == 2)
         {
             return "Plant";
-        }
-        else if(id == 3)
-        {
-            return "Mountain";
         }
         return "";
     }

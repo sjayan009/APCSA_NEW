@@ -7,14 +7,16 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.*;
 import java.awt.*;
-import java.sql.Time;
 
 
 public class EvolutionGamePanel extends JFrame implements Runnable
 {
     public JPanel gridPanel;
+    public int plantCount = 0;
+
     Thread gameThread;
     Random random = new Random();
+    
 
     public EvolutionGamePanel() throws InterruptedException 
     {
@@ -60,6 +62,8 @@ public class EvolutionGamePanel extends JFrame implements Runnable
         gameThread.start();
 
         moveAnimals();
+        removePlants();
+        ensurePlantCount();
     }
     
     public void makeElements()
@@ -188,8 +192,7 @@ public class EvolutionGamePanel extends JFrame implements Runnable
 }
     public void makePlants() 
     {
-        int plantCount = 0;
-        for (int i = 0; i < 324; i++) 
+        for (int i = 0; i < 324; i += 10) 
         {
             JPanel squarePanel = (JPanel) gridPanel.getComponent(i);
             Component[] componentList = squarePanel.getComponents();
@@ -204,13 +207,10 @@ public class EvolutionGamePanel extends JFrame implements Runnable
                         {
                             if( ((int) (Math.random() * 11 + 1)) == 5)
                             {
-                                //Remove it
-                                squarePanel.remove(c);
-
                                 //Add the Plant Component    
                                 Nature n = new Nature(2);
                                 squarePanel.add(n);
-                                squarePanel.setBackground(n.getColor()); 
+                                n.setBackground(n.getColor());
                                 n.setVisible(true);
 
                                 plantCount++;
@@ -333,20 +333,20 @@ public class EvolutionGamePanel extends JFrame implements Runnable
                                 }
                             }
 
-                            boolean isWaterOrTree = false;
+                            boolean isWaterOrTreeOrPlant = false;
                             for(Component nextComponent: nextComponents)
                             {
                                 if(nextComponent instanceof Nature)
                                 {
-                                    if( ((Nature)nextComponent).getID() == 0 || ((Nature)nextComponent).getID() == 1)
+                                    if( ((Nature)nextComponent).getID() == 0 || ((Nature)nextComponent).getID() == 1 || ((Nature)nextComponent).getID() == 2)
                                     {
-                                        isWaterOrTree = true;
+                                        isWaterOrTreeOrPlant = true;
                                     }
                                 }
                             }
     
                             // Move the Animal object to the nextPanel if it does not contain another Animal object
-                            if (!hasAnimal && (isWaterOrTree == false)) {
+                            if (!hasAnimal && (isWaterOrTreeOrPlant == false)) {
                                 try {
                                     swapNatureComponents(currentIndex, nextIndex);
                                 } catch (InterruptedException e) {
@@ -360,8 +360,7 @@ public class EvolutionGamePanel extends JFrame implements Runnable
                 }
             }
         }, 0, 1000); // Set the desired delay between each movement in milliseconds
-    }
-    
+    } 
     
     private int getNextPanelIndex(int currentIndex) {
         List<Integer> neighborIndices = getNeighborIndices(currentIndex);
@@ -395,4 +394,94 @@ public class EvolutionGamePanel extends JFrame implements Runnable
     
         return neighbourIndices;
     }
+
+    //Minimizes Size
+    private void minimizeSize(JPanel squarePanel, Nature nature)
+    {
+        int length = nature.getWidth();
+        while(length >= 0)
+        {
+            length -= 2;
+
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            //Reduce the size of the nature object
+            nature.setPreferredSize(new Dimension(length, length));
+
+            //IMPORTANT
+            squarePanel.revalidate();
+            squarePanel.repaint();
+        }
+    }
+
+    //Removes Plants whenever an Animal is near it.
+    private void removePlants()
+    {
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask(){
+
+            @Override
+            public void run() {
+                for(int i = 0; i < 324; i++)
+                {
+                    JPanel squarePanel = (JPanel) gridPanel.getComponent(i);
+                    Component[] components = squarePanel.getComponents();
+                    for(Component c : components)
+                    {
+                        if(c instanceof Nature)
+                        {
+                            if(((Nature)c).getID() == 2)
+                            {
+                                minimizeSize(squarePanel, (Nature)c);
+                                squarePanel.remove(c);
+                                plantCount--;
+                            }
+                        }
+                    }
+                }
+            }
+
+        }, 0, 1000);
+    }
+
+    //Checks every second to make sure that there are 5 plants at all times
+    private void ensurePlantCount()
+    {
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+
+            @Override
+            public void run() 
+            {
+                while(plantCount < 5)
+                {
+                    int random = (int)(Math.random()*324);
+                    JPanel squarePanel = (JPanel) gridPanel.getComponent(random);
+                    boolean isWater = squarePanel.getBackground().equals(Color.BLUE);
+                    boolean isTree = squarePanel.getBackground().equals(new Color(150, 75, 0));
+
+                    if(isWater == false && isTree == false)
+                    {
+                        //Add the Plant Component    
+                        Nature n = new Nature(2);
+                        squarePanel.add(n);
+                        n.setBackground(n.getColor());
+                        n.setVisible(true);
+
+                        plantCount++;
+                    }
+
+                    //IMPORTANT
+                    squarePanel.revalidate();
+                    squarePanel.repaint();
+                }
+            }
+        }, 0, 1000);
+    }
+
 }
