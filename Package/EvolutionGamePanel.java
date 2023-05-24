@@ -1,4 +1,4 @@
-package Package;
+//package Package;
 
 import java.util.*;
 import java.util.List;
@@ -64,6 +64,9 @@ public class EvolutionGamePanel extends JFrame implements Runnable
         moveAnimals();
         rabbitEatsPlants();
         ensurePlantCount();
+
+        System.out.println(getNeighborIndicesWithRadius(100, 2));
+        
     }
     
     public void makeElements()
@@ -393,7 +396,7 @@ public class EvolutionGamePanel extends JFrame implements Runnable
         return -1; // No valid neighbor found
     }
     
-    //Returns all possible indices that an animal object can move to
+    //Returns all possible indices WITH A RADIUS OF 1 ONLYthat an animal object can move to
     public List<Integer> getNeighborIndicesSimpleRadius(int index) {
         List<Integer> neighbourIndices = new ArrayList<>();
     
@@ -416,7 +419,73 @@ public class EvolutionGamePanel extends JFrame implements Runnable
         return neighbourIndices;
     }
 
-    //Minimizes Size
+    //Returns a list with all correct indices 
+    public List<Integer> getNeighborIndicesWithRadius(int index, int radius)
+    {
+        List<Integer> neighbourIndices = new ArrayList<>();
+
+        if(radius == 1)
+        {
+            int row = index / 18;
+            int col = index % 18;
+        
+            int[] rowOffsets = { -1, 1, 0, 0, -1, -1, 1, 1 };
+            int[] colOffsets = { 0, 0, -1, 1, -1, 1, -1, 1 };
+        
+            for (int i = 0; i < 8; i++) {
+                int newRow = row + rowOffsets[i];
+                int newCol = col + colOffsets[i];
+        
+                if (newRow >= 0 && newRow < 18 && newCol >= 0 && newCol < 18) {
+                    int newIndex = newRow * 18 + newCol;
+                    neighbourIndices.add(newIndex);
+                }
+            }
+        }
+        else if(radius == 2)
+        {
+            int num = index - 19;
+            int first = 0;
+            int add = 1;
+            for(int i = 0; i < radius; i++)
+            {
+                first = num;
+                for(int j = 0; j <= radius; j++)
+                {
+                    neighbourIndices.add(num);
+                    num += add;
+                }
+                first = first - 19;
+                num = first;
+                add++;
+            }
+            num = index + 17;
+            add = 1;
+            for(int i = 0; i < radius; i++)
+            {
+                first = num;
+                for(int j = 0; j <= radius; j++)
+                {
+                    neighbourIndices.add(num);
+                    num += add;
+                }
+                first = first + 17;
+                num = first;
+                add++;
+            }
+
+            neighbourIndices.add(index-1);
+            neighbourIndices.add(index-2);
+            neighbourIndices.add(index+1);
+            neighbourIndices.add(index+2);
+
+            Collections.sort(neighbourIndices);
+        }
+
+        return neighbourIndices;
+    }
+
+    //Minimizes Size of a Nature object and Deletes it
     private void minimizeSizeAndDelete(JPanel squarePanel, Nature nature)
     {
         int length = nature.getWidth();
@@ -502,7 +571,6 @@ public class EvolutionGamePanel extends JFrame implements Runnable
 
         }, 0, 1000);
     }
-
 
     //Checks every second to make sure that there are 5 plants at all times
     private void ensurePlantCount()
