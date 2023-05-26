@@ -49,14 +49,15 @@ public class EvolutionGamePanel extends JFrame implements Runnable
 
         deployAnimal(5);
         deployAnimal(100);
-        for(int i = 200; i < 217; i++)
+        
+        /*for(int i = 200; i < 217; i++)
         {
             if(i % 2 == 0)
             {
                 deployAnimal(i);
             }
             
-        }
+        }*/
 
         gameThread = new Thread(this);
         gameThread.start();
@@ -290,7 +291,7 @@ public class EvolutionGamePanel extends JFrame implements Runnable
         }
     }
 
-    private void moveAnimalsStrategically()
+    private void moveRabbitsStrategically()
     {
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -314,6 +315,15 @@ public class EvolutionGamePanel extends JFrame implements Runnable
                         }
                     }
 
+                    if(animal != null && ((Rabbit)animal).movementAllowed == true)
+                    {
+                        int currentIndex = i;
+                        
+                        String mostNeeded = animal.getHighestVitalSkill();
+                        double mostNeededValue = animal.getHighestVitalSkillValue(mostNeeded);
+
+                        
+                    }
                     
 
                 }
@@ -341,7 +351,8 @@ public class EvolutionGamePanel extends JFrame implements Runnable
                     }
     
                     // Move the Animal object to a neighboring squarePanel if found
-                    if (animal != null) {
+                    if (animal != null && ((Rabbit)animal).movementAllowed == true) 
+                    {
                         int currentIndex = i;
                         int nextIndex = getNextPanelIndex(currentIndex);
     
@@ -559,8 +570,12 @@ public class EvolutionGamePanel extends JFrame implements Runnable
                                 {
                                     if( ((Nature)c).getID() == 2)
                                     {
+                                        ((Rabbit)animal).movementAllowed = false;
+
                                         //Rabbit "eats" plant
                                         minimizeSizeAndDelete(squarePanel2, ((Nature)c));
+
+                                        ((Rabbit)animal).movementAllowed = true;
                                     }
                                 }
                             }
