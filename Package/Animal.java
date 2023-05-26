@@ -45,6 +45,36 @@ public class Animal extends JPanel
         this.reproductionUrge = reproductiveUrge;
     }
 
+    //Returns 'String' that is the highest priority for the animal
+    public String getHighestVitalSkill() {
+        double max = Math.max(Math.max(hunger, thirst), reproductionUrge);
+        
+        if (max == hunger) {
+            return "hunger";
+        } else if (max == thirst) {
+            return "thirst";
+        } else {
+            return "reproductionUrge";
+        }
+    }
+
+    public double getHighestVitalSkillValue(String str)
+    {
+        if(str.equals("hunger"))
+        {
+            return hunger;
+        }
+        else if(str.equals("thirst"))
+        {
+            return thirst;
+        }
+        else
+        {
+            return reproductionUrge;
+        }
+    }
+    
+
     // Getter and setter for genus
     public String getGenus() {
             return genus;
