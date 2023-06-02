@@ -51,14 +51,14 @@ public class EvolutionGamePanel extends JFrame implements Runnable
         deployAnimal(5);
         deployAnimal(100);
         
-        /*for(int i = 200; i < 217; i++)
+        for(int i = 200; i < 217; i++)
         {
             if(i % 2 == 0)
             {
                 deployAnimal(i);
             }
             
-        }*/
+        }
 
         gameThread = new Thread(this);
         gameThread.start();
@@ -325,6 +325,7 @@ public class EvolutionGamePanel extends JFrame implements Runnable
                         //Records Information
                         String mostNeeded = animal.getHighestVitalSkill();
                         double mostNeededValue = animal.getHighestVitalSkillValue(mostNeeded);
+                        System.out.println(mostNeeded);
 
                         //Finds All Possible Indexes Where the Rabbit can Jump to. Removes any negative indexes.
                         List<Integer> radiusTwoList = getNeighborIndicesWithRadius(currentIndex, 2);
@@ -349,11 +350,20 @@ public class EvolutionGamePanel extends JFrame implements Runnable
                                 {
                                     if (c instanceof Nature) 
                                     {
-                                        if (((Nature) c).getID() == 0) 
+                                        if (((Nature) c).getID() == 0 && mostNeeded.equals("thirst")) 
                                         {
+                                            System.out.println("Water");
                                             waterSquare = surrS;
                                             rabbitShouldJumpToSquare = integer;
-                                            System.out.println("waterSquare: " + waterSquare + " -- " + "i: " + i + " -- " + "integer: " + integer);
+                                            try {
+                                                swapAnimalComponents(currentIndex, rabbitShouldJumpToSquare);
+                                            } catch (InterruptedException e) {
+                                                // TODO Auto-generated catch block
+                                                e.printStackTrace();
+                                            }
+                                            rabbitDrinksWater(rabbitShouldJumpToSquare); //Disables movement for rabbit temporarily
+                                            mostNeeded = animal.getHighestVitalSkill();
+                                            mostNeededValue = animal.getHighestVitalSkillValue(mostNeeded);
                                             shouldBreak = true; // Set the flag to true
                                             break outerLoop; // Break out of all the loops
                                         }
@@ -643,6 +653,44 @@ public class EvolutionGamePanel extends JFrame implements Runnable
         }, 0, 1000);
     }
 
+    //Rabbit Drinks Water
+    private void rabbitDrinksWater(int rabbitIndex)
+    {
+        JPanel squarePanel = (JPanel) gridPanel.getComponent(rabbitIndex);
+        Component[] components = squarePanel.getComponents();
+
+        // Find the Animal object in the squarePanel
+        Animal animal = null;
+        for (Component component : components) 
+        {
+            if (component instanceof Rabbit) 
+            {
+                animal = (Rabbit) component;
+                break;
+            }
+        }
+
+        if(animal != null)
+        {
+            ((Rabbit)animal).movementAllowed = false;
+
+            try 
+            {
+                TimeUnit.SECONDS.sleep(5);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            showPopupMessage(squarePanel, "Rabbit Drank Water", 1000);
+
+            ((Rabbit)animal).movementAllowed = true;
+
+            ((Rabbit)animal).setThirst(0);
+
+            System.out.println(animal.getThirst());
+        }
+    }
     //Checks every second to make sure that there are 5 plants at all times
     private void ensurePlantCount()
     {
@@ -691,4 +739,20 @@ public class EvolutionGamePanel extends JFrame implements Runnable
         }, 0, 1000);
     }
 
+    public static void showPopupMessage(JPanel p, String message, int duration) {
+        JOptionPane pane = new JOptionPane(message, JOptionPane.INFORMATION_MESSAGE);
+        JDialog dialog = pane.createDialog(p, "Message");
+
+        TimerTask closeTask = new TimerTask() {
+            @Override
+            public void run() {
+                dialog.dispose(); // Close the dialog
+            }
+        };
+
+        Timer timer = new Timer();
+        timer.schedule(closeTask, duration);
+
+        dialog.setVisible(true);
+    }
 }

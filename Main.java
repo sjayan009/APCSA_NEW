@@ -1,6 +1,7 @@
 import PingPongPackage.*;
 import TicTacToePackage.*;
 import EvolutionGamePackage.*;
+
 import javax.swing.*;
 
 public class Main extends JFrame
@@ -153,8 +154,9 @@ public class Main extends JFrame
         }
         else
         {
+            System.out.println("hi");
             JOptionPane.showMessageDialog(p, "Watch Simulation", "Rules", JOptionPane.INFORMATION_MESSAGE);
-            new EvolutionGamePanel();
+            new EvolutionSimulator();
         }
     }
     
