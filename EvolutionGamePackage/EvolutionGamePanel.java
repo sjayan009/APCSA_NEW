@@ -1,4 +1,5 @@
-//package Package;
+package EvolutionGamePackage;
+
 
 import java.util.*;
 import java.util.List;
@@ -63,6 +64,7 @@ public class EvolutionGamePanel extends JFrame implements Runnable
         gameThread.start();
 
         moveAnimals();
+        moveRabbitsStrategically();
         rabbitEatsPlants();
         ensurePlantCount();
 
@@ -319,10 +321,64 @@ public class EvolutionGamePanel extends JFrame implements Runnable
                     {
                         int currentIndex = i;
                         
+                        //Decides what is needed to be fullfilled first(hunger, thirst, or reproduction urge)
+                        //Records Information
                         String mostNeeded = animal.getHighestVitalSkill();
                         double mostNeededValue = animal.getHighestVitalSkillValue(mostNeeded);
 
-                        
+                        //Finds All Possible Indexes Where the Rabbit can Jump to. Removes any negative indexes.
+                        List<Integer> radiusTwoList = getNeighborIndicesWithRadius(currentIndex, 2);
+                        radiusTwoList.removeIf(n -> n < 0);
+
+                        int waterSquare;
+                        int plantSquare;
+                        int urgeSquare;
+
+                        int rabbitShouldJumpToSquare;
+
+                        boolean shouldBreak = false;
+                        outerLoop:
+                        for (Integer integer : radiusTwoList) 
+                        {
+                            List<Integer> surroundingSquares = getNeighborIndicesSimpleRadius(integer);
+                            for (Integer surrS : surroundingSquares) 
+                            {
+                                JPanel nextPanel = (JPanel) gridPanel.getComponent(surrS);
+                                Component[] nextComponents = nextPanel.getComponents();
+                                for (Component c : nextComponents) 
+                                {
+                                    if (c instanceof Nature) 
+                                    {
+                                        if (((Nature) c).getID() == 0) 
+                                        {
+                                            waterSquare = surrS;
+                                            rabbitShouldJumpToSquare = integer;
+                                            System.out.println("waterSquare: " + waterSquare + " -- " + "i: " + i + " -- " + "integer: " + integer);
+                                            shouldBreak = true; // Set the flag to true
+                                            break outerLoop; // Break out of all the loops
+                                        }
+                                        if (((Nature) c).getID() == 2) 
+                                        {
+                                            plantSquare = surrS;
+                                            rabbitShouldJumpToSquare = integer;
+                                            System.out.println("plantSquare: " + plantSquare + " -- " + "i: " + i + " -- " + "integer: " + integer);
+                                            shouldBreak = true; // Set the flag to true
+                                            break outerLoop; // Break out of all the loops
+                                        }
+                                    }
+                                }
+        
+                                if (shouldBreak) 
+                                {
+                                    break outerLoop; // Break out of all the loops
+                                }
+                            }
+    
+                            if (shouldBreak) 
+                            {
+                                break; // Break out of the outermost loop
+                            }
+                        }
                     }
                     
 

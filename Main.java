@@ -1,5 +1,6 @@
 import PingPongPackage.*;
 import TicTacToePackage.*;
+import EvolutionGamePackage.*;
 import javax.swing.*;
 
 public class Main extends JFrame
@@ -27,11 +28,61 @@ public class Main extends JFrame
         ticTacToePanel.setBounds(40, 80, 400, 60);
         createTicTacToe(ticTacToePanel);
 
+        JPanel evolutionGamePanel = new JPanel();
+        evolutionGamePanel.setBounds(40, 140, 400, 60);
+        createEvolutionGame(evolutionGamePanel);
+
 
         this.add(pingPongPanel);
         this.add(ticTacToePanel);
+        this.add(evolutionGamePanel);
 
         this.setVisible(true);
+    }
+
+    /*
+     * Adds Tic Tac Toe Elements to Tic Tac Toe Panel
+     */
+    private void createTicTacToe(JPanel p)
+    {
+        ButtonGroup b1 = new ButtonGroup();
+
+        JLabel ticTacToeLabel = new JLabel("Tic Tac Toe Game: ");
+        JRadioButton rb1 = new JRadioButton("Terminal");
+
+        b1.add(rb1);
+
+        JButton play = new JButton("Play");
+        play.addActionListener(e -> ticTacToeClick(p, rb1));
+
+        p.add(ticTacToeLabel);
+        p.add(rb1);
+        p.add(play);
+
+    }
+
+    private void createEvolutionGame(JPanel p) 
+    {
+        ButtonGroup b1 = new ButtonGroup();
+
+        JLabel evolutionLabel = new JLabel("Evolution Game: ");
+        JRadioButton rb1 = new JRadioButton("Watch Simulation");
+
+        b1.add(rb1);
+
+        JButton play = new JButton("Play");
+        play.addActionListener(e -> {
+            try {
+                evolutionGameClick(p, rb1);
+            } catch (InterruptedException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+        });
+
+        p.add(evolutionLabel);
+        p.add(rb1);
+        p.add(play);
     }
 
     /*
@@ -81,28 +132,7 @@ public class Main extends JFrame
         }
     }
 
-    /*
-     * Adds Tic Tac Toe Elements to Tic Tac Toe Panel
-     */
-    private void createTicTacToe(JPanel p)
-    {
-        ButtonGroup b1 = new ButtonGroup();
-
-        JLabel ticTacToeLabel = new JLabel("Tic Tac Toe Game: ");
-        JRadioButton rb1 = new JRadioButton("Terminal");
-
-        b1.add(rb1);
-
-        JButton play = new JButton("Play");
-        play.addActionListener(e -> ticTacToeClick(p, rb1));
-
-        p.add(ticTacToeLabel);
-        p.add(rb1);
-        p.add(play);
-
-    }
-
-    private void ticTacToeClick(JPanel p, JRadioButton r1)
+    private void ticTacToeClick(JPanel p, JRadioButton r1) 
     {
         if(r1.isSelected() == false)
         {
@@ -114,6 +144,20 @@ public class Main extends JFrame
             new Terminal().run();
         }
     }
+
+    private void evolutionGameClick(JPanel p, JRadioButton r1) throws InterruptedException
+    {
+        if(r1.isSelected() == false)
+        {
+            JOptionPane.showMessageDialog(p, "You Must Select a Option", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(p, "Watch Simulation", "Rules", JOptionPane.INFORMATION_MESSAGE);
+            new EvolutionGamePanel();
+        }
+    }
+    
     public static void main(String[] args) 
     {
         new Main();

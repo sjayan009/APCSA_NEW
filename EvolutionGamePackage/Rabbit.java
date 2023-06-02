@@ -1,4 +1,5 @@
-//package Package;
+package EvolutionGamePackage;
+
 
 import java.awt.Color;
 

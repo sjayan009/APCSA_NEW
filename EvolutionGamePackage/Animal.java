@@ -1,4 +1,4 @@
-//package Package;
+package EvolutionGamePackage;
 
 import javax.swing.*;
 import java.awt.*;
